@@ -17,18 +17,18 @@ tonnage, orders*.
 
 | Screen | Route key | File | State |
 |---|---|---|---|
-| Login | `login` (pre-auth) | `screens.js → login()` | ✅ mock |
-| Dashboard | `dashboard` | `dashboard()` | ✅ |
-| Tier Roadmap | `roadmap` | `roadmap()` + `climbStep()` | ✅ |
-| Redemption Center | `redeem` | `redeem()` | ✅ (filter by category) |
-| Reward detail / claim | modal | `rewardModal()` | ✅ + confetti |
-| Activity History | `history` | `history()` | ✅ |
-| Leaderboard | `leaderboard` | `leaderboard()` | ✅ podium + list |
-| Profile & Settings | `profile` | `profile()` | ✅ (sub-pages TODO) |
+| Login | `login` (pre-auth) | `screens/LoginScreen.tsx` | ✅ mock |
+| Dashboard | `dashboard` | `screens/DashboardScreen.tsx` | ✅ |
+| Tier Roadmap | `roadmap` | `screens/RoadmapScreen.tsx` | ✅ |
+| Redemption Center | `redeem` | `screens/RedeemScreen.tsx` | ✅ (filter by category) |
+| Reward detail / claim | modal | `RewardModal.tsx` | ✅ + confetti |
+| Activity History | `history` | `screens/HistoryScreen.tsx` | ✅ |
+| Leaderboard | `leaderboard` | `screens/LeaderboardScreen.tsx` | ✅ podium + list |
+| Profile & Settings | `profile` | `screens/ProfileScreen.tsx` | ✅ (sub-pages TODO) |
 
 ## 3. The tier system
 
-Defined in `data.js → TIERS` (index 0–4):
+Defined in `lib/data.ts → TIERS` (index 0–4):
 
 | Tier | Stars to reach | Sub-rank |
 |---|---|---|
@@ -42,45 +42,44 @@ Helper math (current vs next tier, % to next) is computed inline in `dashboard()
 `roadmap()`. If you refactor, extract a `tierProgress(agent)` util into `ui.js`.
 
 ### Badge artwork = the soul of the product
-The 5 badges are standalone SVGs in `assets/svg/tiers/`. They were authored to escalate:
+The 5 badges are standalone SVGs in `next-app/public/assets/svg/tiers/`. They were authored to escalate:
 Bronze (flat medal) → Silver (ornate rim) → Gold (glow + rays) → Platinum (faceted 3D) →
 Diamond (radiant, layered, sparkles). Glows are added in CSS (`.tier-badge.t-gold/.t-platinum/.t-diamond`).
-Render with `UI.tierBadge(index, size, {active, tap})`.
+Render with `<TierBadge index={i} size={n} active />`.
 
 ## 4. How to add things (recipes)
 
-**Add a reward:** append to `DATA.REWARDS` in `data.js`. Categories drive the glyph
-(`assets/svg/rewards.svg` symbol `r-<Category>`) and the filter chips. Add a new category →
+**Add a reward:** append to `REWARDS` in `lib/data.ts`. Categories drive the glyph
+(`public/assets/svg/rewards.svg` symbol `r-<Category>`) and the filter chips. Add a new category →
 add a matching `<symbol id="r-NewCat">` to `rewards.svg`.
 
 **Add a nav screen:**
-1. `SCREENS.foo = (state) => \`…html…\`` in `screens.js`
-2. `{ key:'foo', label:'Foo', short:'Foo', icon:'star' }` in `NAV` (`app.js`)
-3. `case 'foo': return SCREENS.foo(state.agent);` in `screenHtml()`
+1. Create `components/screens/FooScreen.tsx`
+2. Add `{ key:'foo', label:'Foo', short:'Foo', icon:'star' }` to `NAV` in `lib/data.ts`
+3. Add `case 'foo': return <FooScreen />;` in `AppRoot.tsx`
 
 **Add an icon:** new `<symbol id="i-foo" viewBox="0 0 24 24">…</symbol>` in `icons.svg`
-(use `stroke="currentColor"` or `fill="currentColor"`), then `UI.icon('foo', size)`.
+(use `stroke="currentColor"` or `fill="currentColor"`), then `<Icon name="foo" size={n} />`.
 
-**Trigger celebration:** call the module-private `confetti()` in `app.js` (already wired
-to reward claims). Keep it for genuine wins only.
+**Trigger celebration:** call `triggerConfetti()` from `components/Confetti.tsx`. Already
+wired in `AppRoot.tsx` on star decrement (reward claim). Keep it for genuine wins only.
 
 ## 5. Visual system cheatsheet
 
-- **Type:** Inter (UI), Instrument Serif (only big editorial headers if desired),
-  JetBrains Mono (numeric/system). Loaded from Google Fonts in `index.html`.
-- **Tokens:** every color/spacing/shape value is a `var(--…)` in `tokens.css`.
+- **Type:** Inter (UI), JetBrains Mono (numeric/system). Loaded via `next/font/google` in `layout.tsx`.
+- **Tokens:** every color/spacing/shape value is a `var(--…)` in `globals.css`.
 - **Components:** `.card(.pad/.tap)`, `.btn(.btn-primary/.btn-ghost/.btn-soft)(.lg/.sm/.block)`,
   `.star-pill`, `.tier-chip`, `.gauge`, `.chip`, `.act-row`, `.lead-row`. Reuse them.
 - **Dark mode:** toggled by `data-theme="dark"` on `<html>` (persisted in `localStorage`
-  under `asr-theme`). All tokens flip automatically.
+  under `asr-theme`). Dispatch `{ type: 'TOGGLE_THEME' }` to switch.
 
 ## 6. Do / Don't
 
-✅ Keep it vanilla & dependency-free. ✅ Reference tokens. ✅ Mobile-first.
+✅ Reference tokens via `var(--…)`. ✅ Mobile-first. ✅ TypeScript for all new files.
 ✅ Keep red as the sole brand accent. ✅ Keep badges as escalating SVG assets.
 
-❌ No frameworks/build steps. ❌ No new accent colors or gradient soup.
-❌ No inline hex in components. ❌ No filler stats/sections. ❌ No emoji in UI.
+❌ No new accent colors or gradient soup. ❌ No inline hex in components.
+❌ No filler stats/sections. ❌ No emoji in UI.
 
 ## 7. Verify before shipping
 
@@ -124,8 +123,7 @@ main ─────────────────────────
 ### Current release
 
 **`v1.0.0`** — first complete release on `main`.
-- Vanilla HTML/CSS/JS implementation (`src/`)
-- Next.js 15 rebuild (`next-app/`) with TypeScript + App Router
+- Next.js 15 with TypeScript + App Router (`next-app/`)
 - All 8 screens, dark mode, responsive layout, confetti on claim
 
 ### Common commands

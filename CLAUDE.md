@@ -15,8 +15,8 @@ The goal is an experience that feels **professional, modern, gamified-yet-corpor
 clean, and prestigious** — agents should feel *pride and ambition* looking at their
 tier progression.
 
-This repo is a **vanilla HTML/CSS/JS** implementation (no framework, no build step).
-It is intentionally dependency-free so it can be dropped into any stack later.
+This is a **Next.js 15** application (TypeScript, App Router, React 18). The entry
+point is `next-app/`.
 
 ## Non-negotiable design rules
 
@@ -27,14 +27,14 @@ It is intentionally dependency-free so it can be dropped into any stack later.
    - **Do NOT introduce new accent hues** (no blue/green/amber chrome). The only place
      non-red colors appear is *inside the tier badge artwork* (bronze/silver/gold/etc.
      are naturally metallic) and the semantic `--success` green for "+stars". That's it.
-   - All colors live as CSS variables in `assets/css/tokens.css`. Never hard-code a hex
+   - All colors live as CSS variables in `next-app/app/globals.css`. Never hard-code a hex
      in components — use a `var(--token)`.
 
 2. **The Tier Roadmap is the centerpiece.** Badges escalate in complexity & prestige:
    - Bronze = simple structural medal. Silver = textured/ornate rim. Gold = gradients +
      internal glow + bolder geometry. Platinum = faceted 3D depth. Diamond = iconic,
      radiant, layered, premium.
-   - The badges are committed as standalone SVG assets in `assets/svg/tiers/`.
+   - The badges are committed as standalone SVG assets in `next-app/public/assets/svg/tiers/`.
      If you redesign a badge, keep the escalation principle and keep them as assets.
    - The roadmap reads as a **journey/climb** (red path shows progress).
 
@@ -46,63 +46,61 @@ It is intentionally dependency-free so it can be dropped into any stack later.
 4. **Accessibility & polish:** honor `prefers-reduced-motion`, keep contrast high,
    use semantic structure, keep animations tasteful (no infinite decorative loops on content).
 
-## Architecture (vanilla, no framework)
+## Architecture (Next.js 15, App Router)
 
-State lives in one plain object in `app.js`. Screens are pure functions that take state
-and return an **HTML string**; `render()` repaints `#root`. Interaction is handled by a
-single **event-delegation** listener using `data-*` attributes (`data-nav`, `data-action`,
-`data-reward`, `data-cat`). This keeps it framework-free but predictable.
+State lives in `AppContext` (React `useReducer`). Screens are React components under
+`next-app/components/screens/`. Navigation is driven by dispatching `{ type: 'NAV', screen }`.
 
 ```
-state ──▶ SCREENS.<name>(state) ──▶ HTML string ──▶ #root.innerHTML ──▶ paint
-  ▲                                                                      │
-  └────────────── click → data-* handler mutates state → render() ◀──────┘
+AppContext (useReducer)
+  ↓
+AppRoot → auth gate → AppShell + <ScreenComponent />
+  ↓                              ↑
+dispatch(action) ← onClick ──────┘
 ```
 
-Load order (declared in `index.html`, matters):
-`data.js` → `ui.js` → `screens.js` → `app.js`.
-
-Each file attaches one global: `window.DATA`, `window.UI`, `window.SCREENS`. `app.js` is an IIFE.
+State shape:
+```ts
+{ authed: boolean, screen: NavKey, cat: string,
+  agent: Agent, theme: 'light'|'dark', modal: Reward|null }
+```
 
 ## File map
 
-See `PROJECT_STRUCTURE.md` for the full tree. Quick version:
-
-- `src/index.html` — shell; links CSS, loads JS in order.
-- `src/assets/css/` — `tokens` (variables) · `base` (shell/nav) · `components` · `screens`.
-- `src/assets/js/` — `data` · `ui` (helpers/builders) · `screens` (views) · `app` (controller).
-- `src/assets/svg/tiers/*.svg` — the 5 tier badges (used via `<img>`).
-- `src/assets/svg/icons.svg` — UI icon sprite (`<symbol id="i-…">`, `currentColor`).
-- `src/assets/svg/rewards.svg` — reward category glyph sprite (`<symbol id="r-…">`).
+- `next-app/app/layout.tsx` — root layout; loads fonts (Inter, JetBrains Mono), wraps `AppProvider`, mounts `SpriteLoader`.
+- `next-app/app/globals.css` — all CSS: tokens, base shell, components, screen layouts.
+- `next-app/app/page.tsx` — renders `<AppRoot />`.
+- `next-app/components/AppRoot.tsx` — auth gate + screen router + confetti trigger.
+- `next-app/components/AppShell.tsx` — sidebar (desktop) · topbar · bottom nav (mobile).
+- `next-app/components/screens/` — one `.tsx` file per screen.
+- `next-app/components/ui/` — reusable primitives (Icon, TierBadge, Avatar, Gauge, etc.).
+- `next-app/context/AppContext.tsx` — `useReducer` store; all actions defined here.
+- `next-app/lib/data.ts` — TypeScript interfaces + all mock data (TIERS, REWARDS, AGENT, ACTIVITY, LEADERBOARD, NAV).
+- `next-app/public/assets/svg/tiers/` — 5 tier badge SVGs served statically.
+- `next-app/public/assets/svg/icons.svg` — UI icon sprite (`<symbol id="i-…">`).
+- `next-app/public/assets/svg/rewards.svg` — reward category glyph sprite (`<symbol id="r-…">`).
 
 ## Running it
 
-It must be **served over HTTP** (the icon/reward sprites are fetched at runtime):
-
 ```bash
-cd src && python3 -m http.server 8000     # then open http://localhost:8000
-# or:  npx serve src
+cd next-app
+npm install
+npm run dev       # http://localhost:3000
+npm run build && npm start   # production
 ```
-
-Opening `index.html` via `file://` works for everything **except** the inline icon/reward
-sprites (browsers block `fetch` on `file://`). The tier badges still show (they're `<img>`).
 
 ## Conventions when extending
 
-- **New screen:** add `SCREENS.myScreen(state)` in `screens.js`, a `NAV` entry in `app.js`,
-  and a `case` in `screenHtml()`. Reuse `UI.*` builders and existing CSS classes.
-- **New reward / tier / data:** edit `data.js` only. Never inline content in screens.
-- **New icon:** add a `<symbol id="i-name">` to `icons.svg`, then `UI.icon('name')`.
-- **Styling:** add classes to the matching CSS file; always reference `var(--token)`.
-- **No new dependencies, no build tooling, no inline hex colors.** Keep it vanilla.
-- Don't add filler content, dummy stats, or decorative gradients. Less is more.
+- **New screen:** create `next-app/components/screens/FooScreen.tsx`, add `{ key:'foo', ... }` to `NAV` in `data.ts`, add a `case 'foo'` in `AppRoot.tsx`.
+- **New reward / tier / data:** edit `next-app/lib/data.ts` only.
+- **New icon:** add `<symbol id="i-name">` to `icons.svg`; use via `<Icon name="name" />`.
+- **Styling:** add classes to `globals.css`; always use `var(--token)`, never inline hex.
+- **No new accent colors. No decorative filler. No inline hex values.**
 
 ## Known TODO / good next tasks
 
-- Wire real auth + API (currently mock data in `data.js`, login is a no-op).
+- Wire real auth + API (currently mock data in `lib/data.ts`, login is a no-op).
 - Redemption: real search/filter logic (search input is disabled placeholder).
 - Reward claim history persistence; success toast after confetti.
-- Roadmap: optional richer "mountain" SVG path between badges (see git history of the
-  React prototype `../Agent Star Rewards.html` for a reference implementation).
 - Profile sub-pages (contact, notifications, security).
 - Unit tests for the star/tier math (`stars → tier`, `stars → next-tier delta`).
