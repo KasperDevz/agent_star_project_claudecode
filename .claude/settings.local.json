@@ -2,7 +2,20 @@
   "permissions": {
     "allow": [
       "Bash(npm --version)",
-      "Bash(gh --version)"
+      "Bash(gh --version)",
+      "Bash(npx playwright *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3199/)",
+      "Bash(node *)",
+      "Bash(npx playwright@1.61.0 install chromium --with-deps)",
+      "Read(//private/tmp/**)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git tag -a v1.0.0 -m ' *)",
+      "Bash(git checkout *)"
     ]
   }
 }
