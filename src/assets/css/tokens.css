@@ -1,0 +1,55 @@
+/* tokens.css — Design tokens. White/Red (light) · Black/Red (dark).
+   Strict corporate palette: red is the only brand accent. */
+:root {
+  /* surfaces */
+  --bg: #FFFFFF;
+  --bg-alt: #FAFAFA;
+  --surface: #FFFFFF;
+  --surface-soft: #F7F7F8;
+  /* ink */
+  --ink: #0A0A0A;
+  --ink-soft: #4A4A4A;
+  --ink-faint: #8A8A8A;
+  /* lines */
+  --border: #EAEAEA;
+  --border-soft: #F0F0F0;
+  /* brand red */
+  --primary: #D91E1E;
+  --primary-deep: #A80D0D;
+  --primary-soft: #FDEAEA;
+  --primary-glow: rgba(217, 30, 30, 0.18);
+  --on-primary: #FFFFFF;
+  /* semantic */
+  --success: #1F8A3A;
+  /* shape */
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+  /* type */
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* elevation */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] {
+  --bg: #0A0A0B;
+  --bg-alt: #050506;
+  --surface: #141416;
+  --surface-soft: #1C1C1F;
+  --ink: #FAFAFA;
+  --ink-soft: #B5B5B8;
+  --ink-faint: #6E6E72;
+  --border: #26262A;
+  --border-soft: #1C1C1F;
+  --primary: #FF3B3B;
+  --primary-deep: #D91E1E;
+  --primary-soft: rgba(255, 59, 59, 0.14);
+  --primary-glow: rgba(255, 59, 59, 0.28);
+  --on-primary: #FFFFFF;
+  --success: #4ADE80;
+  --shadow-card: none;
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
