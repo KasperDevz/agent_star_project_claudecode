@@ -26,7 +26,7 @@ export default function LeaderboardScreen() {
           );
         })}
       </div>
-      <SectionHeader eyebrow="All agents" title="Ranking · Q2 2026" />
+      <SectionHeader eyebrow="All agents" title="Ranking · Q2 2027" />
       <div className="card">
         {LEADERBOARD.map(p => <LeaderRow key={p.rank} p={p} />)}
       </div>

@@ -16,7 +16,7 @@ function TierRing({ index, current, target, size = 150 }: { index: number; curre
   const pct = Math.min(1, current / target);
   return (
     <div className="hero-ring">
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+      <svg width="100%" height="100%" viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--primary)" strokeWidth={stroke}
           strokeDasharray={`${c * pct} ${c}`} strokeLinecap="round"

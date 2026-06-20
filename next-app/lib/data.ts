@@ -85,7 +85,7 @@ export const REWARDS: Reward[] = [
 
 export const INITIAL_AGENT: Agent = {
   name: 'Siriwan Thongchai', id: 'SR-2847', region: 'Central Thailand',
-  avatar: 'ST', stars: 847, lifetimeStars: 2140, currentTierIndex: 2,
+  avatar: 'ST', stars: 1847, lifetimeStars: 2140, currentTierIndex: 2,
   monthGain: 102, joined: 'Mar 2023',
   ytdSales: '฿18.4M', ytdTonnage: '142.8 t', ytdOrders: 87,
   rank: 12, totalAgents: 184,
